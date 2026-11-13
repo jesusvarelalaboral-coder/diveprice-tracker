@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#0284c7" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>DivePrice Tracker · Rastreador de Ofertas de Buceo</title>
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="/static/icon.svg" />
+  <link rel="apple-touch-icon" href="/static/icon-192.png" />
+  <style>
+    :root {
+      --bg-deep: #061320;
+      --bg-card: #0c2136;
+      --bg-card-hover: #102a45;
+      --bg-input: #071726;
+      --border: #1e3a5f;
+      --primary: #0ea5e9;
+      --primary-hover: #38bdf8;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: radial-gradient(circle at top right, #0b2d48 0%, var(--bg-deep) 65%);
+      color: var(--text-main);
+      min-height: 100vh;
+      line-height: 1.5;
+      padding-bottom: 3rem;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 1.25rem;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 1.25rem 1.5rem;
+      background: rgba(12, 33, 54, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .brand img {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+    }
+
+    .brand h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+
+    .brand p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+    }
+
+    /* Botones grandes optimizados para móvil y escritorio */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      min-height: 50px;
+      padding: 0.75rem 1.35rem;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: var(--radius-md);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(14, 165, 233, 0.35);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.08);
+    }
+
+    .btn-secondary {
+      background: rgba(30, 58, 95, 0.55);
+      color: var(--text-main);
+      border-color: var(--border);
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(30, 58, 95, 0.9);
+      border-color: var(--primary);
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.3);
+      color: #fff;
+    }
+
+    .btn-block {
+      width: 100%;
+    }
+
+    /* Paneles superiores */
+    .grid-top {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    @media (max-width: 860px) {
+      .grid-top {
+        grid-template-columns: 1fr;
+      }
+      header {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .header-actions .btn {
+        flex: 1;
+      }
+    }
+
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #e0f2fe;
+    }
+
+    /* Formulario */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 0.9rem;
+    }
+
+    @media (max-width: 580px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: #bae6fd;
+      margin-bottom: 0.4rem;
+    }
+
+    input[type="text"],
+    input[type="url"],
+    input[type="number"] {
+      width: 100%;
+      min-height: 50px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      color: var(--text-main);
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-md);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2);
+    }
+
+    /* Info de estado y ntfy */
+    .status-box {
+      background: rgba(7, 23, 38, 0.7);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .status-box div {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.25rem 0;
+    }
+
+    .status-box span.val {
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    /* Lista de artículos */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .items-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .item-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1.1rem;
+      box-shadow: var(--shadow);
+      transition: transform 0.18s ease, border-color 0.18s ease;
+    }
+
+    .item-card.deal-hit {
+      border-color: var(--success);
+      background: linear-gradient(180deg, rgba(16, 185, 129, 0.1) 0%, var(--bg-card) 100%);
+    }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+
+    .item-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      word-break: break-word;
+    }
+
+    .store-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.85rem;
+      color: #38bdf8;
+      text-decoration: none;
+      margin-top: 0.25rem;
+      font-weight: 600;
+    }
+
+    .store-link:hover {
+      text-decoration: underline;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-success {
+      background: var(--success-bg);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.4);
+    }
+
+    .badge-warning {
+      background: var(--warning-bg);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+
+    .badge-error {
+      background: var(--danger-bg);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+
+    /* Caja de precios comparados */
+    .price-comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      background: var(--bg-input);
+      padding: 0.95rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .price-block small {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.2rem;
+    }
+
+    .price-current {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .price-current.is-deal {
+      color: #34d399;
+    }
+
+    .price-target {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #38bdf8;
+    }
+
+    .item-meta {
+      font-size: 0.83rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .history-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.35rem;
+    }
+
+    .history-pill {
+      font-size: 0.75rem;
+      background: rgba(30, 58, 95, 0.5);
+      color: #cbd5e1;
+      padding: 0.18rem 0.5rem;
+      border-radius: 6px;
+    }
+
+    .card-actions {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 0.65rem;
+      margin-top: 0.25rem;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3.5rem 1.5rem;
+      background: var(--bg-card);
+      border: 1.5px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+    }
+
+    .empty-state h3 {
+      color: #fff;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Toast de notificación en pantalla */
+    #toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      left: 1.5rem;
+      max-width: 420px;
+      margin-left: auto;
+      background: #0f172a;
+      color: #fff;
+      border-left: 5px solid var(--primary);
+      padding: 1rem 1.25rem;
+      border-radius: var(--radius-md);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65);
+      transform: translateY(150%);
+      transition: transform 0.28s ease;
+      z-index: 9999;
+      font-weight: 600;
+    }
+
+    #toast.show {
+      transform: translateY(0);
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <img src="/static/icon.svg" alt="DivePrice Logo" />
+        <div>
+          <h1>DivePrice Tracker</h1>
+          <p>Rastreador automático de tiendas de buceo online</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnCheckAll" class="btn btn-primary" onclick="checkAllItems()">
+          🔄 Comprobar todos ahora
+        </button>
+        <button id="btnInstallPwa" class="btn btn-secondary" style="display: none;" onclick="installPWA()">
+          📲 Instalar App
+        </button>
+      </div>
+    </header>
+
+    <div class="grid-top">
+      <!-- Panel Añadir Artículo -->
+      <section class="panel">
+        <div class="panel-title">🤿 Añadir equipo de buceo a rastrear</div>
+        <form id="addItemForm" onsubmit="handleAddItem(event)">
+          <div class="form-group">
+            <label for="itemName">Nombre del artículo</label>
+            <input
+              type="text"
+              id="itemName"
+              placeholder="Ej. Ordenador Mares Puck Pro+ / Regulador Apeks XL4"
+              required
+            />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="itemUrl">URL del producto en la tienda</label>
+              <input
+                type="url"
+                id="itemUrl"
+                placeholder="https://www.tradeinn.com/diveinn/es/..."
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="itemTarget">Precio objetivo (€)</label>
+              <input
+                type="number"
+                id="itemTarget"
+                step="0.01"
+                min="0.5"
+                placeholder="Ej. 179.95"
+                required
+              />
+            </div>
+          </div>
+          <button type="submit" id="btnSubmitAdd" class="btn btn-primary btn-block">
+            ➕ Añadir y comprobar precio ahora
+          </button>
+        </form>
+      </section>
+
+      <!-- Panel Alertas Push ntfy.sh y Planificador -->
+      <section class="panel">
+        <div class="panel-title">🔔 Alertas Push (ntfy.sh) y Planificador</div>
+        <div class="status-box">
+          <div>
+            <span>Revisión automática:</span>
+            <span class="val" id="lblInterval">Cada 4 horas</span>
+          </div>
+          <div>
+            <span>Próxima revisión:</span>
+            <span class="val" id="lblNextCheck">Cargando...</span>
+          </div>
+        </div>
+
+        <form onsubmit="handleSaveTopic(event)">
+          <div class="form-group">
+            <label for="ntfyTopic">Tema de ntfy.sh (recibe alertas en tu móvil)</label>
+            <input
+              type="text"
+              id="ntfyTopic"
+              placeholder="buceo-ofertas-alertas"
+              required
+            />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem;">
+            <button type="submit" class="btn btn-secondary">
+              💾 Guardar tema
+            </button>
+            <button type="button" id="btnTestNtfy" class="btn btn-secondary" onclick="testNotification()">
+              📨 Probar alerta
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="section-header">
+      <h2>📋 Artículos vigilados (<span id="itemCount">0</span>)</h2>
+    </div>
+
+    <div id="itemsContainer" class="items-grid"></div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+    let deferredPrompt = null;
+
+    // Registro del Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('btnInstallPwa').style.display = 'inline-flex';
+    });
+
+    async function installPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      document.getElementById('btnInstallPwa').style.display = 'none';
+    }
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.style.borderLeftColor = isError ? '#ef4444' : '#10b981';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function formatEur(val) {
+      if (val === null || val === undefined) return '—';
+      return Number(val).toLocaleString('es-ES', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }) + ' €';
+    }
+
+    function getDomain(url) {
+      try {
+        return new URL(url).hostname.replace(/^www\./, '');
+      } catch {
+        return 'Tienda online';
+      }
+    }
+
+    async function loadConfig() {
+      try {
+        const res = await fetch('/api/config');
+        const data = await res.json();
+        document.getElementById('ntfyTopic').value = data.ntfy_topic || '';
+        document.getElementById('lblInterval').textContent = `Cada ${data.check_interval_hours} horas`;
+        document.getElementById('lblNextCheck').textContent = data.next_scheduled_check || 'Activa';
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadItems() {
+      try {
+        const res = await fetch('/api/items');
+        const data = await res.json();
+        if (data.next_scheduled_check) {
+          document.getElementById('lblNextCheck').textContent = data.next_scheduled_check;
+        }
+        renderItems(data.items || []);
+      } catch (e) {
+        showToast('Error al cargar la lista de artículos', true);
+      }
+    }
+
+    function renderItems(items) {
+      const container = document.getElementById('itemsContainer');
+      document.getElementById('itemCount').textContent = items.length;
+
+      if (!items.length) {
+        container.className = '';
+        container.innerHTML = `
+          <div class="empty-state">
+            <h3>Todavía no has añadido ningún equipo de buceo</h3>
+            <p>Usa el formulario superior para añadir enlaces de Scubastore/Diveinn, Casco Antiguo, Gidive, Decathlon o cualquier tienda online.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.className = 'items-grid';
+      container.innerHTML = items.map((item) => {
+        const hasPrice = item.current_price !== null && item.current_price !== undefined;
+        const isDeal = hasPrice && Number(item.current_price) <= Number(item.target_price);
+        const diff = hasPrice ? (Number(item.current_price) - Number(item.target_price)) : null;
+
+        let badgeHtml = `<span class="badge badge-warning">⏳ Pendiente</span>`;
+        if (item.last_status === 'error') {
+          badgeHtml = `<span class="badge badge-error">⚠️ Sin precio detectado</span>`;
+        } else if (isDeal) {
+          badgeHtml = `<span class="badge badge-success">🎯 ¡En precio objetivo!</span>`;
+        } else if (hasPrice) {
+          badgeHtml = `<span class="badge badge-warning">+${formatEur(diff)} sobre objetivo</span>`;
+        }
+
+        const historyList = (item.history || []).slice(-5);
+        const historyHtml = historyList.length
+          ? `<div class="history-pills">
+              ${historyList.map(h => `<span class="history-pill" title="${h.recorded_at}">${formatEur(h.price)}</span>`).join('')}
+            </div>`
+          : '';
+
+        const errorHtml = item.last_error
+          ? `<div style="color:#fca5a5; font-size:0.8rem;">Detalle: ${escapeHtml(item.last_error)}</div>`
+          : '';
+
+        return `
+          <article class="item-card ${isDeal ? 'deal-hit' : ''}" id="card-${item.id}">
+            <div>
+              <div class="item-header">
+                <div>
+                  <div class="item-title">${escapeHtml(item.name)}</div>
+                  <a class="store-link" href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">
+                    🔗 ${escapeHtml(getDomain(item.url))} ↗
+                  </a>
+                </div>
+                ${badgeHtml}
+              </div>
+
+              <div class="price-comparison" style="margin-top: 1rem;">
+                <div class="price-block">
+                  <small>Precio Actual</small>
+                  <div class="price-current ${isDeal ? 'is-deal' : ''}">${formatEur(item.current_price)}</div>
+                </div>
+                <div class="price-block">
+                  <small>Precio Objetivo</small>
+                  <div class="price-target">${formatEur(item.target_price)}</div>
+                </div>
+              </div>
+
+              <div class="item-meta" style="margin-top: 0.9rem;">
+                <div>🕒 Última revisión: <strong>${item.last_checked || 'Nunca'}</strong></div>
+                <div>📉 Mínimo histórico: <strong>${formatEur(item.lowest_price)}</strong></div>
+                ${errorHtml}
+                ${historyHtml}
+              </div>
+            </div>
+
+            <div class="card-actions">
+              <button
+                id="btn-check-${item.id}"
+                class="btn btn-primary"
+                onclick="checkItemNow(${item.id})"
+              >
+                🔍 Comprobar ahora
+              </button>
+              <button
+                class="btn btn-danger"
+                onclick="deleteItemNow(${item.id})"
+              >
+                🗑️ Eliminar
+              </button>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    async function handleAddItem(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitAdd');
+      const name = document.getElementById('itemName').value.trim();
+      const url = document.getElementById('itemUrl').value.trim();
+      const target_price = parseFloat(document.getElementById('itemTarget').value);
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> Extrayendo precio con Playwright...`;
+
+      try {
+        const res = await fetch('/api/items', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, url, target_price })
+        });
+        if (!res.ok) throw new Error('Error al guardar el artículo');
+        const data = await res.json();
+        document.getElementById('addItemForm').reset();
+        await loadItems();
+        if (data.item && data.item.current_price !== null) {
+          showToast(`✅ Añadido: Precio detectado ${formatEur(data.item.current_price)}`);
+        } else {
+          showToast('⚠️ Artículo añadido, pero no se pudo detectar el precio automáticamente.', true);
+        }
+      } catch (err) {
+        showToast('Error al añadir el artículo. Verifica la URL.', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '➕ Añadir y comprobar precio ahora';
+      }
+    }
+
+    async function checkItemNow(id) {
+      const btn = document.getElementById(`btn-check-${id}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner"></span> Revisando...`;
+      }
+      try {
+        const res = await fetch(`/api/items/${id}/check`, { method: 'POST' });
+        const data = await res.json();
+        await loadItems();
+        if (data.item && data.item.last_status === 'ok') {
+          showToast(`✅ Precio actualizado: ${formatEur(data.item.current_price)}`);
+        } else {
+          showToast('⚠️ No se pudo detectar el precio en esta revisión', true);
+        }
+      } catch (e) {
+        showToast('Error al comprobar el artículo', true);
+      }
+    }
+
+    async function checkAllItems() {
+      const btn = document.getElementById('btnCheckAll');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> Comprobando todos...`;
+      try {
+        const res = await fetch('/api/check-all', { method: 'POST' });
+        const data = await res.json();
+        await loadItems();
+        showToast(`✅ Se han comprobado ${data.checked} artículo(s)`);
+      } catch (e) {
+        showToast('Error al comprobar todos los artículos', true);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '🔄 Comprobar todos ahora';
+      }
+    }
+
+    async function deleteItemNow(id) {
+      if (!confirm('¿Seguro que deseas eliminar este artículo del rastreador?')) return;
+      try {
+        await fetch(`/api/items/${id}`, { method: 'DELETE' });
+        await loadItems();
+        showToast('🗑️ Artículo eliminado');
+      } catch (e) {
+        showToast('Error al eliminar el artículo', true);
+      }
+    }
+
+    async function handleSaveTopic(e) {
+      e.preventDefault();
+      const topic = document.getElementById('ntfyTopic').value.trim();
+      try {
+        const res = await fetch('/api/config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ntfy_topic: topic })
+        });
+        if (!res.ok) throw new Error();
+        showToast(`✅ Tema ntfy guardado: ${topic}`);
+      } catch {
+        showToast('Error al guardar el tema ntfy', true);
+      }
+    }
+
+    async function testNotification() {
+      const btn = document.getElementById('btnTestNtfy');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      try {
+        const res = await fetch('/api/config/test-notification', { method: 'POST' });
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        showToast(`📨 Notificación enviada a ntfy.sh/${data.topic}`);
+      } catch {
+        showToast('Error enviando notificación a ntfy.sh', true);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '📨 Probar alerta';
+      }
+    }
+
+    loadConfig();
+    loadItems();
+  </script>
+</body>
+</html>
