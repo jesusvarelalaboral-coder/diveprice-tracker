@@ -26,6 +26,7 @@ from database import (
 )
 from notifier import send_price_alert, send_test_notification
 from scraper import scrape_price
+from multisearch import search_best_prices
 
 logging.basicConfig(
     level=logging.INFO,
@@ -165,6 +166,19 @@ async def serve_sw():
 @app.get("/api/health")
 async def api_health():
     return {"status": "ok", "time": datetime.now().isoformat()}
+
+
+@app.get("/api/search")
+async def api_search(q: str):
+    clean_q = q.strip()
+    if not clean_q or len(clean_q) < 2:
+        raise HTTPException(status_code=400, detail="Escribe al menos 2 caracteres")
+    results = await search_best_prices(clean_q)
+    return {
+        "query": clean_q,
+        "count": len(results),
+        "results": results,
+    }
 
 
 @app.get("/api/items")
